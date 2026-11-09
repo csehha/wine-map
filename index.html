@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>WSET L2 포도 품종 지도</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="포도 지도">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f6f5f1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121211" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="icon.png">
+<style>
+:root{--surface-0:#f6f5f1;--surface-1:#fcfcfb;--surface-2:#fff;--text-primary:#0b0b0b;--text-secondary:#52514e;--text-muted:#898781;--border:rgba(11,11,11,.10);--border-strong:rgba(11,11,11,.18);--bg-accent:#E6F1FB;--text-accent:#185FA5;--border-accent:#378ADD;--bg-warning:#FAEEDA;--text-warning:#854F0B;--bg-danger:#FCEBEB;--text-danger:#A32D2D;--bg-pro:#EEEDFE;--text-pro:#534AB7;--radius:8px}
+@media (prefers-color-scheme:dark){:root{--surface-0:#121211;--surface-1:#1a1a19;--surface-2:#242422;--text-primary:#f0efec;--text-secondary:#c3c2b7;--border:rgba(255,255,255,.10);--border-strong:rgba(255,255,255,.18);--bg-accent:#0C447C;--text-accent:#B5D4F4;--bg-warning:#633806;--text-warning:#FAC775;--bg-danger:#791F1F;--text-danger:#F7C1C1;--bg-pro:#3C3489;--text-pro:#CECBF6}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--surface-0);color:var(--text-primary);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+main{max-width:720px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 32px)}
+h1{font-size:20px;font-weight:500;margin:0 0 12px}
+button{font:inherit;font-size:14px;color:var(--text-primary);background:transparent;border:0.5px solid var(--border-strong);border-radius:var(--radius);padding:6px 12px;cursor:pointer}
+button:active{transform:scale(.98)}
+select{font:inherit;font-size:16px;height:38px;color:var(--text-primary);background:var(--surface-2);border:0.5px solid var(--border-strong);border-radius:var(--radius);padding:0 8px}
+.seg{display:flex;border:0.5px solid var(--border-strong);border-radius:var(--radius);overflow:hidden;flex-shrink:0}
+.seg button{border:none;border-radius:0;font-size:13px;padding:8px 10px}
+.seg button.on{background:var(--bg-accent);color:var(--text-accent)}
+.pre{font-size:12px;padding:5px 10px}
+.chip{font-size:13px;padding:5px 10px;display:inline-flex;align-items:center;gap:6px}
+.chip.on{background:var(--bg-accent);color:var(--text-accent);border-color:var(--border-accent)}
+.sq{width:8px;height:8px;border-radius:2px;display:inline-block}
+.lab{font-size:12px;color:var(--text-muted);margin:14px 0 6px}
+.txt{font-size:14px;line-height:1.6;margin:0}
+.meter{display:flex;gap:3px}
+.meter span{flex:1;height:6px;border-radius:2px;background:var(--border)}
+.zb{width:38px;height:38px;padding:0;background:var(--surface-2);font-size:20px;line-height:1}
+.row{display:block;width:100%;text-align:left;padding:8px 10px;margin-top:6px}
+.row.on{background:var(--bg-accent);border-color:var(--border-accent)}
+.row b{font-weight:500;font-size:13px}
+.row span{display:block;font-size:13px;color:var(--text-secondary);margin-top:2px}
+</style>
+</head>
+<body>
+<main>
+<h1>WSET Level 2 포도 품종 지도</h1>
+<div style="display:flex;gap:8px;align-items:center;margin:0 0 10px">
+<div class="seg" id="flt"><button data-f="all" class="on">전체</button><button data-f="w">화이트</button><button data-f="r">레드</button></div>
+<select id="sel" style="flex:1;min-width:0"><option value="">품종 선택</option></select>
+</div>
+<div id="mapbox" style="background:var(--surface-1);border:0.5px solid var(--border);border-radius:12px;padding:8px;scroll-margin-top:12px">
+<div id="pres" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px"></div>
+<div style="position:relative">
+<svg id="map" viewBox="0 0 400 260" width="100%" style="display:block;touch-action:none" role="img" aria-label="와인 산지 세계 지도"></svg>
+<div style="position:absolute;top:6px;right:6px;display:flex;flex-direction:column;gap:6px">
+<button class="zb" id="zin" aria-label="확대">+</button>
+<button class="zb" id="zout" aria-label="축소">−</button>
+</div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--text-secondary);margin-top:6px;padding-left:2px">
+<span><span class="sq" style="background:#BA7517"></span> 화이트</span><span><span class="sq" style="background:#E24B4A"></span> 레드</span><span><span class="sq" style="background:#7F77DD"></span> 화이트+레드</span><span><span style="display:inline-block;width:14px;height:2px;background:#378ADD;vertical-align:middle"></span> 강</span>
+</div>
+<p style="font-size:12px;color:var(--text-muted);margin:4px 0 0 2px">점이나 지역 이름을 누르면 선택돼요. 두 손가락으로 확대·이동해요.</p>
+</div>
+<div id="reg" style="margin-top:12px;font-size:14px"></div>
+<div id="det" style="margin-top:12px"></div>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js" crossorigin="anonymous"></script>
+<script>
+const R={chablis:['샤블리','프랑스',3.8,47.8],cotenuits:['코트 드 뉘','프랑스',4.96,47.19],cotebeaune:['코트 드 본','프랑스',4.79,46.99],macon:['마코네','프랑스',4.78,46.38],beaujolais:['보졸레','프랑스',4.65,46.1],
+medoc:['메독 (좌안)','프랑스',-0.8,45.15,'메독 · 좌안'],graves:['그라브·페삭레오냥 (좌안)','프랑스',-0.6,44.7,'그라브 · 좌안'],sauternes:['소테른·바르삭 (좌안)','프랑스',-0.34,44.54,'소테른 · 좌안'],edm:['앙트르 되 메르','프랑스',-0.2,44.75],rightbank:['생테밀리옹·포므롤 (우안)','프랑스',-0.15,44.95,'생테밀리옹 · 우안'],
+loireE:['상세르·푸이 퓌메 (루아르)','프랑스',2.85,47.3,'상세르'],loireC:['부브레 (루아르)','프랑스',0.3,47.35,'부브레'],alsace:['알자스','프랑스',7.3,48.1],rhoneN:['북부 론','프랑스',4.8,45.2],rhoneS:['남부 론','프랑스',4.85,44.1],languedoc:['랑그독','프랑스',3.3,43.4],cahors:['카오르','프랑스',1.44,44.45],
+mosel:['모젤','독일',6.9,49.9],rheingau:['라인가우','독일',8.0,50.0],pfalz:['팔츠','독일',8.1,49.3],austria:['오스트리아','오스트리아',15.6,48.4],tokaj:['토카이','헝가리',21.4,48.1],
+rias:['리아스 바이샤스','스페인',-8.7,42.4],rioja:['리오하','스페인',-2.5,42.4],ribera:['리베라 델 두에로','스페인',-3.8,41.6],navarra:['나바라','스페인',-1.65,42.75],priorat:['프리오랏','스페인',0.8,41.2],
+langhe:['바롤로·바르바레스코 (랑게)','이탈리아',7.98,44.65,'바롤로'],asti:['아스티','이탈리아',8.2,44.9],gavi:['가비','이탈리아',8.8,44.69],chianti:['키안티 클라시코','이탈리아',11.3,43.5,'키안티'],montalc:['몬탈치노·몬테풀치아노','이탈리아',11.63,43.08,'몬탈치노'],soave:['소아베','이탈리아',11.25,45.42],valpol:['발폴리첼라','이탈리아',10.93,45.53],altoadige:['알토 아디제','이탈리아',11.35,46.5],friuli:['프리울리','이탈리아',13.2,46.0],marche:['마르케','이탈리아',13.2,43.5],abruzzo:['아브루초','이탈리아',14.0,42.3],campania:['캄파니아','이탈리아',14.8,40.93],puglia:['풀리아','이탈리아',17.4,40.5],
+calif:['캘리포니아','미국',-122.4,38.4],oregon:['오리건','미국',-123.1,45.2],casa:['카사블랑카 밸리','칠레',-71.4,-33.3,'카사블랑카'],cchile:['센트럴 밸리 (마이포)','칠레',-70.9,-34.3],mendoza:['멘도사','아르헨티나',-68.8,-33.0],
+margaret:['마거릿 리버','호주',115.1,-33.9],clare:['클레어·이든 밸리','호주',138.6,-33.8,'클레어'],barossa:['바로사 밸리','호주',139.0,-34.5,'바로사'],adelaide:['애들레이드 힐스','호주',138.85,-35.1],coona:['쿠나와라','호주',140.8,-37.3],yarra:['야라 밸리','호주',145.5,-37.7],hunter:['헌터 밸리','호주',151.3,-32.8],
+marl:['말버러','뉴질랜드',173.9,-41.5],martin:['마틴버러','뉴질랜드',175.5,-41.2],hawkes:['호크스 베이','뉴질랜드',176.8,-39.6],otago:['센트럴 오타고','뉴질랜드',169.2,-45.0],
+stell:['스텔렌보스','남아공',18.86,-33.93],cons:['콘스탄시아','남아공',18.42,-34.03],walker:['워커 베이','남아공',19.3,-34.4]};
+const G=[
+{id:'pinot',ch:6,p:1,k:'피노 누아',e:'Pinot Noir',t:'r',b:[2,3],a:[4,5],n:[1,3],ar:'딸기·라즈베리·레드체리 / 숙성: 버섯·흙',pt:'껍질이 얇아 색이 옅고 탄닌이 낮음. 서늘~온화한 기후 필요.',rs:[['cotenuits','코트 드 뉘','즈브레샹베르탱·뉘생조르주, 더 진하고 복합적'],['cotebeaune','코트 드 본','본·포마르'],['calif','캘리포니아','카르네로스·소노마·산타바버라, 안개로 서늘함'],['oregon','오리건','레드 과일, 우아한 스타일'],['casa','칠레 카사블랑카','서늘한 해양성 기후'],['yarra','호주 야라 밸리·모닝턴 페닌슐라','서늘한 기후'],[['martin','marl','otago'],'뉴질랜드 (마틴버러·말버러·센트럴 오타고)','센트럴 오타고가 가장 잘 익고 진함'],['walker','남아공 워커 베이','서늘한 해안']]},
+{id:'zin',ch:7,k:'진판델 / 프리미티보',e:'Zinfandel / Primitivo',t:'r',b:[3,5],a:[3,3],n:[3,4],ar:'블랙베리·블루베리, 잼·건포도 같은 잘 익은 과일',pt:'포도알이 불균일하게 익어 건포도 향과 높은 알코올.',rs:[['calif','캘리포니아','풀바디 레드, 블러시(화이트 진판델)'],['puglia','이탈리아 풀리아','프리미티보, 잘 익은 과일']]},
+{id:'riesling',ch:8,p:1,k:'리슬링',e:'Riesling',t:'w',b:[1,3],a:[5,5],ar:'청사과·라임·꽃 → 복숭아·살구 / 숙성: 꿀·토스트·페트롤',pt:'무오크. 높은 산도로 드라이부터 스위트, 장기 숙성까지.',rs:[['mosel','모젤','저알코올, 오프드라이~스위트'],[['rheingau','pfalz'],'라인가우·팔츠','드라이~스위트, 더 풍부함'],['alsace','알자스','드라이, 풀바디'],['austria','오스트리아','드라이, 풀바디'],['clare','클레어·이든 밸리','드라이, 라임·토스트']]},
+{id:'chenin',ch:9,k:'슈냉 블랑',e:'Chenin Blanc',t:'w',b:[2,4],a:[5,5],ar:'청사과·레몬 → 복숭아·열대과일 / 귀부: 꿀',pt:'높은 산도. 드라이·스위트·스파클링 모두 가능.',rs:[['loireC','부브레 (루아르)','드라이~스위트, 스파클링'],['stell','남아공','잘 익은 과일, 때로 오크']]},
+{id:'semillon',ch:9,k:'세미용',e:'Sémillon',t:'w',b:[2,5],a:[3,5],ar:'레몬·풀 / 숙성: 토스트·꿀 / 귀부: 살구·마멀레이드',pt:'귀부병(보트리티스)으로 만드는 소테른 스위트가 핵심.',rs:[['sauternes','소테른·바르삭','귀부 스위트'],[['graves','edm'],'보르도 드라이 화이트','소비뇽 블랑과 블렌드'],['hunter','헌터 밸리','저알코올·고산도, 병숙성 시 토스트·꿀']]},
+{id:'furmint',ch:9,k:'푸르민트',e:'Furmint',t:'w',b:[3,4],a:[5,5],ar:'사과·레몬 / 토카이: 살구·마멀레이드·꿀',pt:'높은 산도. 귀부 스위트 토카이 아수가 대표.',rs:[['tokaj','토카이','드라이 푸르민트와 토카이 아수']]},
+{id:'chard',ch:10,p:1,k:'샤르도네',e:'Chardonnay',t:'w',b:[2,5],a:[3,5],ar:'서늘: 청사과·레몬 / 따뜻: 복숭아·파인애플 / 오크: 바닐라·토스트',pt:'중성적 품종이라 오크·젖산발효(버터)·앙금 접촉 등 양조 영향이 큼.',rs:[['chablis','샤블리','무오크, 고산도, 청사과·레몬'],['cotebeaune','코트 드 본','뫼르소·퓔리니 몽라셰, 오크 숙성'],['macon','마코네','푸이 퓌세, 미디엄 바디'],['calif','캘리포니아','잘 익은 열대과일, 오크'],['casa','칠레 카사블랑카','서늘한 해양성, 신선함'],[['adelaide','yarra','margaret'],'호주 (애들레이드 힐스·야라·마거릿 리버)','서늘한 지역의 우아한 스타일'],['walker','남아공 워커 베이','서늘한 해안, 우아함']]},
+{id:'sauv',ch:11,p:1,k:'소비뇽 블랑',e:'Sauvignon Blanc',t:'w',b:[2,3],a:[5,5],ar:'풀·피망·구스베리 / 따뜻: 패션프루트',pt:'대부분 무오크로 아로마를 살려 어릴 때 마심.',rs:[['loireE','상세르·푸이 퓌메','절제된 풀 향, 미네랄'],[['graves','edm'],'보르도','세미용과 블렌드, 페삭레오냥은 오크'],['marl','말버러','강렬한 패션프루트·구스베리'],['casa','칠레 카사블랑카','서늘한 해양성'],['cons','남아공 콘스탄시아·엘긴','서늘한 해안'],['adelaide','애들레이드 힐스','서늘한 고지대'],['calif','캘리포니아','퓌메 블랑(오크 숙성)']]},
+{id:'pgris',ch:12,p:1,k:'피노 그리지오 / 그리',e:'Pinot Grigio / Pinot Gris',t:'w',b:[2,5],a:[2,3],ar:'그리지오: 레몬·청사과 / 그리: 복숭아·생강·꿀',pt:'이탈리아는 가볍고 상큼하게(그리지오), 알자스는 풍부하게(그리).',rs:[[['friuli','altoadige'],'이탈리아 북동부','가볍고 상큼한 그리지오'],['alsace','알자스','풀바디·스파이시, 드라이~스위트'],['oregon','오리건','미디엄 바디, 잘 익은 과일']]},
+{id:'gewurz',ch:13,k:'게뷔르츠트라미너',e:'Gewürztraminer',t:'w',b:[4,5],a:[1,2],ar:'리치·장미·생강·시나몬',pt:'고알코올·저산도, 매우 강한 아로마.',rs:[['alsace','알자스','드라이~스위트(방당주 타르디브·SGN)']]},
+{id:'viognier',ch:13,k:'비오니에',e:'Viognier',t:'w',b:[4,5],a:[1,2],ar:'살구·복숭아·꽃',pt:'저산도·고알코올. 일부 오크·젖산발효.',rs:[['rhoneN','콩드리외 (북부 론)','최고급 비오니에'],['languedoc','랑그독','IGP 페이 독, 가성비']]},
+{id:'albarino',ch:13,k:'알바리뇨',e:'Albariño',t:'w',b:[2,3],a:[4,5],ar:'자몽·복숭아·꽃',pt:'무오크, 상큼한 아로마틱 화이트.',rs:[['rias','리아스 바이샤스','대표 산지']]},
+{id:'merlot',ch:14,p:1,k:'메를로',e:'Merlot',t:'r',b:[3,5],a:[3,4],n:[3,4],ar:'서늘: 레드 플럼·풀 / 따뜻: 블랙플럼·블랙베리',pt:'카베르네보다 탄닌이 부드럽고 바디·알코올이 높음.',rs:[['rightbank','보르도 우안','생테밀리옹·포므롤, 메를로 중심'],['medoc','보르도 좌안','카베르네의 보조 품종'],['calif','나파 밸리','잘 익은 과일·오크'],['cchile','칠레 센트럴 밸리','부드럽고 잘 익은 스타일'],['hawkes','호크스 베이','보르도 블렌드']]},
+{id:'cab',ch:15,p:1,k:'카베르네 소비뇽',e:'Cabernet Sauvignon',t:'r',b:[4,5],a:[4,5],n:[4,5],ar:'블랙커런트·블랙체리·민트 / 오크: 바닐라·시더',pt:'늦게 익어 따뜻한 기후 필요. 보르도 좌안 자갈 토양.',rs:[[['medoc','graves'],'보르도 좌안','메독(포이야크·마고)·그라브, 카베르네 중심'],['calif','나파 밸리','풀바디, 잘 익은 과일·오크'],['cchile','칠레 마이포','블랙커런트·민트'],[['coona','margaret'],'호주 (쿠나와라·마거릿 리버)','쿠나와라는 민트·유칼립투스'],['stell','스텔렌보스','풀바디, 보르도 블렌드']]},
+{id:'syrah',ch:16,p:1,k:'시라 / 쉬라즈',e:'Syrah / Shiraz',t:'r',b:[3,5],a:[3,4],n:[3,5],ar:'서늘: 블랙베리·블랙 후추·제비꽃 / 따뜻: 감초·초콜릿',pt:'서늘하면 후추 향, 따뜻하면 진하고 잘 익은 과일.',rs:[['rhoneN','북부 론','에르미타주·코트 로티, 후추 향'],['rhoneS','남부 론','그르나슈와 블렌드'],['barossa','바로사 밸리','풀바디, 고알코올'],['hunter','헌터 밸리','미디엄 바디, 흙 향'],['hawkes','호크스 베이','서늘한 기후의 후추 향'],['stell','남아공','풀바디, 잘 익은 과일']]},
+{id:'gamay',ch:17,k:'가메',e:'Gamay',t:'r',b:[1,2],a:[4,4],n:[1,2],ar:'라즈베리·레드체리 / 탄산침용: 바나나·풍선껌',pt:'탄산침용으로 과일 향을 살리고 탄닌을 낮춤.',rs:[['beaujolais','보졸레','누보부터 숙성 가능한 크뤼까지']]},
+{id:'grenache',ch:18,k:'그르나슈 / 가르나차',e:'Grenache / Garnacha',t:'r',b:[4,5],a:[2,3],n:[2,3],ar:'딸기·라즈베리·흰 후추 / 숙성: 가죽',pt:'고알코올·저산도. 블렌딩(GSM)과 로제에 많이 쓰임.',rs:[['rhoneS','남부 론','샤토뇌프 뒤 파프, 타벨 로제'],['priorat','프리오랏','농축되고 진한 레드'],['navarra','나바라','로제'],['rioja','리오하','템프라니요와 블렌드'],['barossa','바로사 밸리','GSM 블렌드']]},
+{id:'tempranillo',ch:19,k:'템프라니요',e:'Tempranillo',t:'r',b:[3,4],a:[3,3],n:[3,4],ar:'레드체리·딸기 / 미국 오크: 바닐라·코코넛 / 숙성: 가죽',pt:'숙성 기간에 따라 호벤·크리안사·레세르바·그란 레세르바.',rs:[['rioja','리오하','가르나차와 블렌드, 미국 오크'],['ribera','리베라 델 두에로','더 진하고 탄닌 강함']]},
+{id:'carmenere',ch:20,k:'카르메네르',e:'Carmenère',t:'r',b:[3,4],a:[3,3],n:[3,4],ar:'블랙베리·블랙플럼 + 피망 같은 풋향',pt:'덜 익으면 풋내가 강함.',rs:[['cchile','칠레 센트럴 밸리','칠레 대표 레드']]},
+{id:'malbec',ch:20,k:'말벡',e:'Malbec',t:'r',b:[4,5],a:[3,4],n:[3,5],ar:'블랙베리·블랙플럼·제비꽃',pt:'고지대 멘도사에서 잘 익은 과일과 부드러운 탄닌.',rs:[['mendoza','멘도사','풀바디, 부드러운 탄닌'],['cahors','카오르','더 단단한 탄닌, 높은 산도']]},
+{id:'pinotage',ch:20,k:'피노타지',e:'Pinotage',t:'r',b:[4,5],a:[3,3],n:[3,4],ar:'블랙베리·블랙플럼, 스모키·흙',pt:'피노 누아 × 생소 교배종.',rs:[['stell','스텔렌보스','남아공 고유 품종']]},
+{id:'cortese',ch:21,k:'코르테제',e:'Cortese',t:'w',b:[2,2],a:[4,5],ar:'청사과·레몬·배',pt:'가볍고 산도 높은 드라이 화이트.',rs:[['gavi','가비','피에몬테']]},
+{id:'garganega',ch:21,k:'가르가네가',e:'Garganega',t:'w',b:[2,3],a:[3,4],ar:'사과·배·핵과, 아몬드',pt:'스위트 레치오토 디 소아베도 있음.',rs:[['soave','소아베','소아베 클라시코가 더 집중도 높음']]},
+{id:'verdicchio',ch:21,k:'베르디키오',e:'Verdicchio',t:'w',b:[2,3],a:[4,5],ar:'레몬·청사과·쌉쌀한 아몬드',pt:'상큼하고 깔끔한 드라이 화이트.',rs:[['marche','마르케','베르디키오 데이 카스텔리 디 예시']]},
+{id:'fiano',ch:21,k:'피아노',e:'Fiano',t:'w',b:[3,4],a:[3,4],ar:'복숭아·멜론 / 숙성: 꿀·견과',pt:'질감이 풍부하고 숙성력 있음.',rs:[['campania','캄파니아','피아노 디 아벨리노']]},
+{id:'nebbiolo',ch:22,k:'네비올로',e:'Nebbiolo',t:'r',b:[4,5],a:[5,5],n:[5,5],ar:'레드체리·장미 / 숙성: 타르·가죽',pt:'색은 옅지만 탄닌·산도가 매우 높아 장기 숙성.',rs:[['langhe','피에몬테','바롤로·바르바레스코']]},
+{id:'barbera',ch:22,k:'바르베라',e:'Barbera',t:'r',b:[3,4],a:[5,5],n:[2,3],ar:'레드체리·자두·블랙베리',pt:'높은 산도·낮은 탄닌.',rs:[['asti','아스티','바르베라 다스티'],['langhe','알바','바르베라 달바']]},
+{id:'corvina',ch:22,k:'코르비나',e:'Corvina',t:'r',b:[1,5],a:[4,5],n:[1,4],ar:'레드체리 / 아마로네: 말린 체리·건포도',pt:'말린 포도로 아마로네(드라이)·레치오토(스위트), 그리고 리파소.',rs:[['valpol','발폴리첼라','발폴리첼라·리파소·아마로네']]},
+{id:'sangiovese',ch:23,k:'산조베제',e:'Sangiovese',t:'r',b:[3,4],a:[5,5],n:[4,5],ar:'레드체리·자두·말린 허브 / 숙성: 흙·가죽',pt:'높은 산도와 탄닌.',rs:[['chianti','키안티','키안티·키안티 클라시코'],['montalc','몬탈치노·몬테풀치아노','브루넬로 디 몬탈치노, 비노 노빌레']]},
+{id:'montepulciano',ch:23,k:'몬테풀치아노',e:'Montepulciano',t:'r',b:[3,4],a:[3,3],n:[3,4],ar:'블랙체리·자두',pt:'토스카나 마을 몬테풀치아노(산조베제 와인)와 혼동 주의.',rs:[['abruzzo','아브루초','몬테풀치아노 다브루초']]}
+];
+const LV=['낮음','중간(-)','중간','중간(+)','높음'],COL={w:'#BA7517',r:'#E24B4A',m:'#7F77DD'};
+let filt='all',sg=null,sr=null,hl=[],T=d3.zoomIdentity;
+const GM={},RG={};G.forEach(g=>GM[g.id]=g);for(const id in R)RG[id]=[];
+G.forEach(g=>g.rs.forEach(([ids])=>[].concat(ids).forEach(r=>{if(!RG[r].includes(g.id))RG[r].push(g.id)})));
+const ok=g=>filt==='all'||g.t===filt,vis=d=>RG[d.id].some(i=>ok(GM[i])),isH=id=>hl.includes(id);
+const sel=document.getElementById('sel'),regEl=document.getElementById('reg'),detEl=document.getElementById('det');
+function fillSel(){sel.innerHTML='<option value="">품종 선택 (교재 순)</option>';G.filter(ok).forEach(g=>{const o=document.createElement('option');o.value=g.id;o.textContent=`${g.ch}장 · ${g.k}${g.p?' ★':''}`;sel.appendChild(o)});sel.value=sg||''}
+const W=400,H=260,svg=d3.select('#map');
+const proj=d3.geoNaturalEarth1().fitExtent([[2,2],[W-2,H-2]],{type:'Sphere'}),path=d3.geoPath(proj);
+const zG=svg.append('g'),g110=zG.append('g'),g50=zG.append('g').style('display','none'),dotG=svg.append('g'),labG=svg.append('g');
+const pts=Object.keys(R).map(id=>{const r=R[id],lb=r[4]||r[0].split(' (')[0];return{id,p:proj([r[2],r[3]]),lb,lw:[...lb].reduce((s,c)=>s+(c.charCodeAt(0)>4351?12:6.5),0)}});
+pts.forEach(d=>{let m=1e9;pts.forEach(o=>{if(o!==d)m=Math.min(m,Math.hypot(o.p[0]-d.p[0],o.p[1]-d.p[1]))});d.nn=m});
+const P=id=>pts.find(o=>o.id===id);
+const rg=dotG.selectAll('g').data(pts).join('g').style('cursor','pointer').on('click',(e,d)=>tapRegion(d));
+rg.append('circle').attr('class','h').attr('r',14).style('fill','transparent');
+rg.append('circle').attr('class','d').attr('r',6);
+const lab=labG.selectAll('g').data(pts).join('g').style('cursor','pointer').style('display','none').on('click',(e,d)=>pickRegion(d.id));
+lab.append('rect').attr('y',-12).attr('height',24).attr('width',d=>d.lw+10).style('fill','transparent');
+lab.append('text').text(d=>d.lb).attr('dy','0.35em').style('font-size','12px').style('stroke','var(--surface-1)').style('stroke-width','3px').style('stroke-linejoin','round').style('paint-order','stroke');
+function landPaths(gr,f){gr.selectAll('path.c').data(f).join('path').attr('class','c').attr('d',path).attr('vector-effect','non-scaling-stroke').style('fill','var(--border-strong)').style('stroke','var(--surface-1)').style('stroke-width',0.6)}
+d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json').then(w=>landPaths(g110,topojson.feature(w,w.objects.countries).features)).catch(()=>{});
+let hi=0,riv=null;
+function loadHi(){if(hi)return;hi=1;d3.json('https://cdn.jsdelivr.net/npm/sane-topojson@4.0.0/dist/world_50m.json').then(w=>{const o=w.objects;landPaths(g50,topojson.feature(w,o.countries).features);if(o.lakes)g50.append('path').datum(topojson.feature(w,o.lakes)).attr('d',path).style('fill','var(--surface-1)').style('stroke','none');if(o.rivers)riv=g50.append('path').datum(topojson.feature(w,o.rivers)).attr('d',path).attr('vector-effect','non-scaling-stroke').style('fill','none').style('stroke','#378ADD').style('stroke-width',1.2).style('stroke-linecap','round').style('stroke-linejoin','round');hi=2;update()}).catch(()=>{hi=3})}
+let raf=0;
+function update(){rg.attr('transform',d=>`translate(${T.applyX(d.p[0])},${T.applyY(d.p[1])})`);const on=hi===2&&T.k>=2.5;g110.style('display',on?'none':null);g50.style('display',on?null:'none');if(riv)riv.style('opacity',Math.max(0,Math.min(0.9,(T.k-2.5)/3)));if(T.k>=1.8&&!hi)loadHi();if(!raf)raf=requestAnimationFrame(()=>{raf=0;placeLabels()})}
+function placeLabels(){lab.style('display','none');const pri=d=>isH(d.id)?3:(sg&&RG[d.id].includes(sg)?2:1);const boxes=[[W-46,0,W,90]],sp=new Map();pts.forEach(d=>{if(!vis(d))return;const x=T.applyX(d.p[0]),y=T.applyY(d.p[1]);sp.set(d.id,[x,y]);boxes.push([x-6,y-6,x+6,y+6])});
+pts.filter(d=>sp.has(d.id)).sort((a,b)=>pri(b)-pri(a)).forEach(d=>{const pr=pri(d);if(sg&&pr===1&&T.k<6)return;const[x,y]=sp.get(d.id);if(x<0||x>W||y<0||y>H)return;for(const s of[1,-1]){const x0=s>0?x+9:x-9-d.lw,b=[x0-2,y-9,x0+d.lw+2,y+9];if(b[0]<1||b[2]>W-1||b[1]<1||b[3]>H-1)continue;if(boxes.some(o=>b[0]<o[2]&&b[2]>o[0]&&b[1]<o[3]&&b[3]>o[1]))continue;boxes.push(b);const el=lab.filter(o=>o===d).style('display',null).attr('transform',`translate(${s>0?x+9:x-9},${y})`);el.select('rect').attr('x',s>0?-5:-d.lw-5);el.select('text').attr('text-anchor',s>0?'start':'end').style('fill',pr>1?'var(--text-primary)':'var(--text-secondary)').style('font-weight',pr>1?500:400);break}})}
+const zoom=d3.zoom().scaleExtent([1,250]).extent([[0,0],[W,H]]).translateExtent([[0,0],[W,H]]).on('zoom',e=>{T=e.transform;zG.attr('transform',T);update()});
+svg.call(zoom).on('dblclick.zoom',null);
+function render(){rg.each(function(d){const ids=RG[d.id].filter(i=>ok(GM[i]));const h=sg?RG[d.id].includes(sg):ids.length>0;let c;if(sg)c=COL[GM[sg].t];else{const w=ids.some(i=>GM[i].t==='w'),r=ids.some(i=>GM[i].t==='r');c=w&&r?COL.m:w?COL.w:COL.r}
+const s=d3.select(this).style('pointer-events',ids.length?'auto':'none'),hh=isH(d.id);s.select('circle.d').attr('r',h?(hh?8:6):4).style('fill',h?c:'var(--text-muted)').style('opacity',h?1:(ids.length?0.45:0.12)).style('stroke',hh?'var(--text-primary)':'var(--surface-1)').style('stroke-width',hh?2:1.2)});
+if(sg)rg.filter(d=>RG[d.id].includes(sg)).raise();rg.filter(d=>isH(d.id)).raise();placeLabels()}
+function goTo(cx,cy,k,dur){k=Math.max(1,Math.min(250,k));svg.transition().duration(dur||750).call(zoom.transform,d3.zoomIdentity.translate(W/2-k*cx,H/2-k*cy).scale(k))}
+function zoomBounds(x0,y0,x1,y1,mk){const k=Math.min(mk,0.85*Math.min(W/Math.max(x1-x0,.01),H/Math.max(y1-y0,.01)));goTo((x0+x1)/2,(y0+y1)/2,k)}
+function zoomPts(ps,pad,mk){const xs=ps.map(p=>p[0]),ys=ps.map(p=>p[1]);zoomBounds(Math.min(...xs)-pad,Math.min(...ys)-pad,Math.max(...xs)+pad,Math.max(...ys)+pad,mk)}
+function zoomLL(b){if(!b)return svg.transition().duration(650).call(zoom.transform,d3.zoomIdentity);const ps=[];for(let i=0;i<=6;i++){const lo=b[0]+(b[2]-b[0])*i/6;ps.push(proj([lo,b[1]]),proj([lo,b[3]]))}zoomPts(ps,0,250)}
+function zoomGrape(id){zoomPts(pts.filter(d=>RG[d.id].includes(id)).map(d=>d.p),3,60)}
+function zoomIds(ids){if(ids.length===1){const d=P(ids[0]);goTo(d.p[0],d.p[1],Math.max(T.k,Math.min(220,30/d.nn)))}else zoomPts(ids.map(i=>P(i).p),1.5,120)}
+function tapRegion(d){const x=T.applyX(d.p[0]),y=T.applyY(d.p[1]);const near=pts.some(o=>o!==d&&vis(o)&&Math.hypot(T.applyX(o.p[0])-x,T.applyY(o.p[1])-y)<12);if(near&&T.k<240){svg.transition().duration(500).call(zoom.scaleBy,4,[x,y]);return}pickRegion(d.id)}
+const PRE=[['세계',null],['유럽',[-10,36,23,52]],['보르도',[-1.2,44.4,0.2,45.35]],['이탈리아',[6.5,37.5,18.5,47]],['북미',[-126,34,-117,48]],['남미',[-76,-38,-62,-28]],['호주',[113,-44,154,-30]],['뉴질랜드',[166,-47,179,-38]],['남아공',[17.6,-35,20,-33]]];
+const pres=document.getElementById('pres');PRE.forEach(([l,b])=>{const bt=document.createElement('button');bt.className='pre';bt.textContent=l;bt.onclick=()=>zoomLL(b);pres.appendChild(bt)});
+document.getElementById('zin').onclick=()=>svg.transition().duration(300).call(zoom.scaleBy,2.5);
+document.getElementById('zout').onclick=()=>svg.transition().duration(300).call(zoom.scaleBy,0.4);
+function chip(id){const x=GM[id];return`<button class="chip${id===sg?' on':''}" data-g="${id}"><span class="sq" style="background:${COL[x.t]}"></span>${x.k}</button>`}
+function showReg(){if(!sr){regEl.innerHTML='';return}const r=R[sr],ids=RG[sr].filter(i=>ok(GM[i]));regEl.innerHTML=`<div style="margin-bottom:8px;font-weight:500">${r[0]} <span style="font-weight:400;color:var(--text-secondary)">· ${r[1]}</span></div><div style="display:flex;flex-wrap:wrap;gap:6px">${ids.map(chip).join('')}</div>`}
+function meter(l,v,c){const t=v[0]===v[1]?LV[v[0]-1]:LV[v[0]-1]+' ~ '+LV[v[1]-1];return`<div style="display:grid;grid-template-columns:34px minmax(0,1fr) 108px;align-items:center;gap:10px;margin-top:8px"><span style="font-size:13px;color:var(--text-secondary)">${l}</span><div class="meter">${[1,2,3,4,5].map(i=>`<span${i>=v[0]&&i<=v[1]?` style="background:${c}"`:''}></span>`).join('')}</div><span style="font-size:12px;color:var(--text-secondary);text-align:right">${t}</span></div>`}
+function showDet(){if(!sg){detEl.innerHTML='<p style="font-size:14px;color:var(--text-secondary);margin:0">지도의 점이나 이름을 누르거나 위에서 품종을 고르면 요약 카드가 나와요.</p>';return}const x=GM[sg],w=x.t==='w',c=COL[x.t],bs='font-size:12px;padding:3px 10px;border-radius:var(--radius);';
+detEl.innerHTML=`<div style="background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:1rem 1.25rem"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div><p style="font-size:18px;font-weight:500;margin:0">${x.k}</p><p style="font-size:13px;color:var(--text-secondary);margin:2px 0 0">${x.e} · 교재 ${x.ch}장</p></div><div style="display:flex;gap:6px;flex-shrink:0">${x.p?`<span style="${bs}background:var(--bg-pro);color:var(--text-pro)">주요 품종</span>`:''}<span style="${bs}background:var(--bg-${w?'warning':'danger'});color:var(--text-${w?'warning':'danger'})">${w?'화이트':'레드'}</span></div></div>
+<div style="margin-top:6px">${meter('바디',x.b,c)}${meter('산도',x.a,c)}${x.n?meter('탄닌',x.n,c):''}</div>
+<p class="lab">핵심 향</p><p class="txt">${x.ar}</p><p class="lab">시험 포인트</p><p class="txt">${x.pt}</p>
+<p class="lab">산지별 스타일 (누르면 지도 이동)</p>${x.rs.map(([ids,ti,n])=>{const a=[].concat(ids);return`<button class="row${a.some(isH)?' on':''}" data-r="${a.join(',')}"><b>${ti}</b><span>${n}</span></button>`}).join('')}</div>`}
+function pickRegion(id){sr=id;hl=[id];const ids=RG[id].filter(i=>ok(GM[i]));if(!sg||!ids.includes(sg))sg=ids[0]||null;sel.value=sg||'';render();showReg();showDet()}
+regEl.addEventListener('click',e=>{const b=e.target.closest('[data-g]');if(!b)return;sg=b.dataset.g;sel.value=sg;render();showReg();showDet()});
+detEl.addEventListener('click',e=>{const b=e.target.closest('[data-r]');if(!b)return;const ids=b.dataset.r.split(',');hl=ids;sr=ids.length===1?ids[0]:null;render();showReg();showDet();zoomIds(ids);document.getElementById('mapbox').scrollIntoView({behavior:'smooth',block:'start'})});
+sel.addEventListener('change',()=>{sg=sel.value||null;if(!sg||(sr&&!RG[sr].includes(sg))){sr=null;hl=[]}hl=hl.filter(i=>sg&&RG[i].includes(sg));render();showReg();showDet();if(sg)zoomGrape(sg);else zoomLL(null)});
+document.getElementById('flt').addEventListener('click',e=>{const b=e.target.closest('[data-f]');if(!b)return;filt=b.dataset.f;document.querySelectorAll('#flt button').forEach(x=>x.classList.toggle('on',x===b));if(sg&&!ok(GM[sg])){sg=null;hl=[]}if(sr&&!RG[sr].some(i=>ok(GM[i]))){sr=null;hl=[]}fillSel();render();showReg();showDet()});
+fillSel();update();render();showDet();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
